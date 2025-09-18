@@ -35,7 +35,7 @@
         <!-- Access Voting Portal -->
         <div id="step-portal" class="step">
             <h2 id="portal-title" class="text-xl font-semibold mb-4">Welcome to Voting Portal</h2>
-            <button onclick="goToStep('auth')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" data-i18n="enter-portal">Enter Portal</button>
+            <button onclick="goToStep('portal')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" data-i18n="enter-portal">Enter Portal</button>
         </div>
 
         <!-- Authentication -->
@@ -118,8 +118,8 @@
         const voters = [
             { id: 'V123', dob: '1990-01-01' },
             { id: 'V456', dob: '2000-05-15' }
-        ]; // Pre-registered voter IDs with DOB
-        let votes = []; // Store votes in memory with timestamps
+        ];
+        let votes = [];
         let currentVoter = null;
         let inactivityTimer = null;
         let voteChart = null;
@@ -197,8 +197,13 @@
         // Navigation between steps
         function goToStep(stepId) {
             document.querySelectorAll('.step').forEach(step => step.classList.add('hidden'));
-            document.getElementById(step-${stepId}).classList.remove('hidden');
+            document.getElementById(`step-${stepId}`).classList.remove('hidden');
             clearErrors();
+            // Clear inputs
+            document.querySelectorAll('input, select').forEach(input => {
+                if (input.type === 'text' || input.type === 'date') input.value = '';
+                if (input.tagName === 'SELECT') input.selectedIndex = 0;
+            });
             resetInactivityTimer();
         }
 
@@ -224,7 +229,7 @@
         // Calculate age from DOB
         function isEligibleToVote(dob) {
             const birthDate = new Date(dob);
-            const today = new Date('2025-09-17'); // Hardcoded to match current date
+            const today = new Date();
             const age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
@@ -267,6 +272,7 @@
             if (isValidVoterId(voterId) && voters.some(voter => voter.id === voterId) && !votes.some(vote => vote.voterId === voterId)) {
                 currentVoter = voterId;
                 goToStep('verify');
+                resetInactivityTimer();
             } else {
                 document.getElementById('auth-error').classList.remove('hidden');
             }
@@ -301,7 +307,7 @@
             const candidate = document.getElementById('candidate').value;
             if (candidate) {
                 const colorClass = getCandidateColorClass(candidate);
-                document.getElementById('preview-candidate').innerHTML = <span class="${colorClass}">${candidate}</span>;
+                document.getElementById('preview-candidate').innerHTML = `<span class="${colorClass}">${candidate}</span>`;
                 document.getElementById('vote-preview').classList.remove('hidden');
             } else {
                 document.getElementById('vote-error').classList.remove('hidden');
@@ -315,7 +321,7 @@
                 const voteId = 'VOTE-' + Math.random().toString(36).substr(2, 9);
                 const timestamp = new Date().toISOString();
                 votes.push({ voterId: currentVoter, candidate, voteId, timestamp });
-                document.getElementById('vote-id').textContent = Vote ID: ${voteId};
+                document.getElementById('vote-id').textContent = `Vote ID: ${voteId}`;
                 goToStep('confirm');
             } else {
                 document.getElementById('vote-error').classList.remove('hidden');
@@ -348,10 +354,10 @@
             const maxVotes = Math.max(...Object.values(tally));
             const winners = Object.keys(tally).filter(candidate => tally[candidate] === maxVotes);
             if (winners.length > 1) {
-                const winnerText = winners.map(w => <span class="${getCandidateColorClass(w)}">${w}</span>).join(', ');
-                return Tie between: ${winnerText} with ${maxVotes} votes each;
+                const winnerText = winners.map(w => `<span class="${getCandidateColorClass(w)}">${w}</span>`).join(', ');
+                return `Tie between: ${winnerText} with ${maxVotes} votes each`;
             }
-            return Winner: <span class="${getCandidateColorClass(winners[0])}">${winners[0]}</span> with ${maxVotes} votes;
+            return `Winner: <span class="${getCandidateColorClass(winners[0])}">${winners[0]}</span> with ${maxVotes} votes`;
         }
 
         // Admin: Toggle Results
@@ -365,12 +371,12 @@
                 }, {});
                 const tallyList = document.getElementById('vote-tally');
                 tallyList.innerHTML = Object.entries(tally).map(([candidate, count]) => 
-                    <li><span class="${getCandidateColorClass(candidate)}">${candidate}</span>: ${count} votes</li>
+                    `<li><span class="${getCandidateColorClass(candidate)}">${candidate}</span>: ${count} votes</li>`
                 ).join('');
                 document.getElementById('vote-winner').innerHTML = getWinner();
                 const historyList = document.getElementById('vote-history');
                 historyList.innerHTML = votes.map(vote => 
-                    <li><span class="${getCandidateColorClass(vote.candidate)}">${vote.candidate}</span> by ${vote.voterId} at ${vote.timestamp}</li>
+                    `<li><span class="${getCandidateColorClass(vote.candidate)}">${vote.candidate}</span> by ${vote.voterId} at ${vote.timestamp}</li>`
                 ).join('');
 
                 // Update Chart
@@ -385,9 +391,9 @@
                             data: Object.values(tally),
                             backgroundColor: Object.keys(tally).map(candidate => {
                                 switch (candidate) {
-                                    case 'Janasena (JSP)': return '#dc2626'; // Red
-                                    case 'YCP': return '#2563eb'; // Blue
-                                    case 'TDP': return '#ca8a04'; // Yellow
+                                    case 'Janasena (JSP)': return '#dc2626';
+                                    case 'YCP': return '#2563eb';
+                                    case 'TDP': return '#ca8a04';
                                     default: return '#6b7280';
                                 }
                             }),
