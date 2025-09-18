@@ -35,7 +35,7 @@
         <!-- Access Voting Portal -->
         <div id="step-portal" class="step">
             <h2 id="portal-title" class="text-xl font-semibold mb-4">Welcome to Voting Portal</h2>
-            <button onclick="goToStep('portal')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" data-i18n="enter-portal">Enter Portal</button>
+            <button onclick="goToStep('auth')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" data-i18n="enter-portal">Enter Portal</button>
         </div>
 
         <!-- Authentication -->
@@ -196,148 +196,220 @@
 
         // Navigation between steps
         function goToStep(stepId) {
-            document.querySelectorAll('.step').forEach(step => step.classList.add('hidden'));
-            document.getElementById(`step-${stepId}`).classList.remove('hidden');
-            clearErrors();
-            // Clear inputs
-            document.querySelectorAll('input, select').forEach(input => {
-                if (input.type === 'text' || input.type === 'date') input.value = '';
-                if (input.tagName === 'SELECT') input.selectedIndex = 0;
-            });
-            resetInactivityTimer();
+            try {
+                document.querySelectorAll('.step').forEach(step => step.classList.add('hidden'));
+                const stepElement = document.getElementById(`step-${stepId}`);
+                if (!stepElement) {
+                    console.error(`Step element with ID step-${stepId} not found`);
+                    return;
+                }
+                stepElement.classList.remove('hidden');
+                clearErrors();
+                // Clear inputs
+                document.querySelectorAll('input, select').forEach(input => {
+                    if (input.type === 'text' || input.type === 'date') input.value = '';
+                    if (input.tagName === 'SELECT') input.selectedIndex = 0;
+                });
+                resetInactivityTimer();
+            } catch (error) {
+                console.error('Error in goToStep:', error);
+            }
         }
 
         // Clear error messages
         function clearErrors() {
-            document.querySelectorAll('.text-red-500').forEach(error => error.classList.add('hidden'));
-            document.getElementById('vote-preview').classList.add('hidden');
+            try {
+                document.querySelectorAll('.text-red-500').forEach(error => error.classList.add('hidden'));
+                const votePreview = document.getElementById('vote-preview');
+                if (votePreview) votePreview.classList.add('hidden');
+            } catch (error) {
+                console.error('Error in clearErrors:', error);
+            }
         }
 
         // Input sanitization
         function sanitizeInput(input) {
-            const div = document.createElement('div');
-            div.textContent = input;
-            return div.innerHTML;
+            try {
+                const div = document.createElement('div');
+                div.textContent = input;
+                return div.innerHTML;
+            } catch (error) {
+                console.error('Error in sanitizeInput:', error);
+                return input;
+            }
         }
 
         // Input validation for voter ID
         function isValidVoterId(voterId) {
-            const regex = /^[a-zA-Z0-9]{4,10}$/;
-            return regex.test(voterId);
+            try {
+                const regex = /^[a-zA-Z0-9]{4,10}$/;
+                return regex.test(voterId);
+            } catch (error) {
+                console.error('Error in isValidVoterId:', error);
+                return false;
+            }
         }
 
         // Calculate age from DOB
         function isEligibleToVote(dob) {
-            const birthDate = new Date(dob);
-            const today = new Date();
-            const age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                return age - 1 >= 18;
+            try {
+                const birthDate = new Date(dob);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    return age - 1 >= 18;
+                }
+                return age >= 18;
+            } catch (error) {
+                console.error('Error in isEligibleToVote:', error);
+                return false;
             }
-            return age >= 18;
         }
 
         // Get Tailwind color class for candidate
         function getCandidateColorClass(candidate) {
-            switch (candidate) {
-                case 'Janasena (JSP)': return 'text-red-600';
-                case 'YCP': return 'text-blue-600';
-                case 'TDP': return 'text-yellow-600';
-                default: return 'text-gray-600';
+            try {
+                switch (candidate) {
+                    case 'Janasena (JSP)': return 'text-red-600';
+                    case 'YCP': return 'text-blue-600';
+                    case 'TDP': return 'text-yellow-600';
+                    default: return 'text-gray-600';
+                }
+            } catch (error) {
+                console.error('Error in getCandidateColorClass:', error);
+                return 'text-gray-600';
             }
         }
 
         // Language change
         function changeLanguage() {
-            const lang = document.getElementById('language-select').value;
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                element.textContent = translations[lang][key];
-            });
-            document.getElementById('title').textContent = translations[lang]['title'];
-            document.getElementById('portal-title').textContent = translations[lang]['portal-title'];
-            document.getElementById('auth-title').textContent = translations[lang]['auth-title'];
-            document.getElementById('register-title').textContent = translations[lang]['register-title'];
-            document.getElementById('verify-title').textContent = translations[lang]['verify-title'];
-            document.getElementById('vote-title').textContent = translations[lang]['vote-title'];
-            document.getElementById('confirm-title').textContent = translations[lang]['confirm-title'];
-            document.getElementById('end-title').textContent = translations[lang]['end-title'];
-            document.getElementById('admin-title').textContent = translations[lang]['admin-title'];
+            try {
+                const lang = document.getElementById('language-select').value;
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    element.textContent = translations[lang][key];
+                });
+                document.getElementById('title').textContent = translations[lang]['title'];
+                document.getElementById('portal-title').textContent = translations[lang]['portal-title'];
+                document.getElementById('auth-title').textContent = translations[lang]['auth-title'];
+                document.getElementById('register-title').textContent = translations[lang]['register-title'];
+                document.getElementById('verify-title').textContent = translations[lang]['verify-title'];
+                document.getElementById('vote-title').textContent = translations[lang]['vote-title'];
+                document.getElementById('confirm-title').textContent = translations[lang]['confirm-title'];
+                document.getElementById('end-title').textContent = translations[lang]['end-title'];
+                document.getElementById('admin-title').textContent = translations[lang]['admin-title'];
+            } catch (error) {
+                console.error('Error in changeLanguage:', error);
+            }
         }
 
         // Authentication
         function authenticate() {
-            const voterId = sanitizeInput(document.getElementById('voter-id').value);
-            if (isValidVoterId(voterId) && voters.some(voter => voter.id === voterId) && !votes.some(vote => vote.voterId === voterId)) {
-                currentVoter = voterId;
-                goToStep('verify');
-                resetInactivityTimer();
-            } else {
-                document.getElementById('auth-error').classList.remove('hidden');
+            try {
+                const voterId = sanitizeInput(document.getElementById('voter-id').value);
+                if (isValidVoterId(voterId) && voters.some(voter => voter.id === voterId) && !votes.some(vote => vote.voterId === voterId)) {
+                    currentVoter = voterId;
+                    goToStep('verify');
+                    resetInactivityTimer();
+                } else {
+                    const authError = document.getElementById('auth-error');
+                    if (authError) authError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error in authenticate:', error);
             }
         }
 
         // Registration
         function register() {
-            const newVoterId = sanitizeInput(document.getElementById('new-voter-id').value);
-            const dob = document.getElementById('voter-dob').value;
-            if (isValidVoterId(newVoterId) && dob && !voters.some(voter => voter.id === newVoterId)) {
-                voters.push({ id: newVoterId, dob });
-                document.getElementById('register-success').classList.remove('hidden');
-                setTimeout(() => goToStep('auth'), 1500);
-            } else {
-                document.getElementById('register-error').classList.remove('hidden');
+            try {
+                const newVoterId = sanitizeInput(document.getElementById('new-voter-id').value);
+                const dob = document.getElementById('voter-dob').value;
+                if (isValidVoterId(newVoterId) && dob && !voters.some(voter => voter.id === newVoterId)) {
+                    voters.push({ id: newVoterId, dob });
+                    const registerSuccess = document.getElementById('register-success');
+                    if (registerSuccess) registerSuccess.classList.remove('hidden');
+                    setTimeout(() => goToStep('auth'), 1500);
+                } else {
+                    const registerError = document.getElementById('register-error');
+                    if (registerError) registerError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error in register:', error);
             }
         }
 
         // Verify Eligibility
         function verifyEligibility() {
-            const voter = voters.find(v => v.id === currentVoter);
-            if (voter && isEligibleToVote(voter.dob) && !votes.some(vote => vote.voterId === currentVoter)) {
-                goToStep('vote');
-            } else {
-                document.getElementById('verify-error').classList.remove('hidden');
-                setTimeout(() => goToStep('end'), 2000);
+            try {
+                const voter = voters.find(v => v.id === currentVoter);
+                if (voter && isEligibleToVote(voter.dob) && !votes.some(vote => vote.voterId === currentVoter)) {
+                    goToStep('vote');
+                } else {
+                    const verifyError = document.getElementById('verify-error');
+                    if (verifyError) verifyError.classList.remove('hidden');
+                    setTimeout(() => goToStep('end'), 2000);
+                }
+            } catch (error) {
+                console.error('Error in verifyEligibility:', error);
             }
         }
 
         // Preview Vote
         function previewVote() {
-            const candidate = document.getElementById('candidate').value;
-            if (candidate) {
-                const colorClass = getCandidateColorClass(candidate);
-                document.getElementById('preview-candidate').innerHTML = `<span class="${colorClass}">${candidate}</span>`;
-                document.getElementById('vote-preview').classList.remove('hidden');
-            } else {
-                document.getElementById('vote-error').classList.remove('hidden');
+            try {
+                const candidate = document.getElementById('candidate').value;
+                if (candidate) {
+                    const colorClass = getCandidateColorClass(candidate);
+                    const previewCandidate = document.getElementById('preview-candidate');
+                    if (previewCandidate) {
+                        previewCandidate.innerHTML = `<span class="${colorClass}">${candidate}</span>`;
+                        document.getElementById('vote-preview').classList.remove('hidden');
+                    }
+                } else {
+                    const voteError = document.getElementById('vote-error');
+                    if (voteError) voteError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error in previewVote:', error);
             }
         }
 
         // Cast Vote
         function castVote() {
-            const candidate = document.getElementById('candidate').value;
-            if (candidate) {
-                const voteId = 'VOTE-' + Math.random().toString(36).substr(2, 9);
-                const timestamp = new Date().toISOString();
-                votes.push({ voterId: currentVoter, candidate, voteId, timestamp });
-                document.getElementById('vote-id').textContent = `Vote ID: ${voteId}`;
-                goToStep('confirm');
-            } else {
-                document.getElementById('vote-error').classList.remove('hidden');
+            try {
+                const candidate = document.getElementById('candidate').value;
+                if (candidate) {
+                    const voteId = 'VOTE-' + Math.random().toString(36).substr(2, 9);
+                    const timestamp = new Date().toISOString();
+                    votes.push({ voterId: currentVoter, candidate, voteId, timestamp });
+                    const voteIdElement = document.getElementById('vote-id');
+                    if (voteIdElement) voteIdElement.textContent = `Vote ID: ${voteId}`;
+                    goToStep('confirm');
+                } else {
+                    const voteError = document.getElementById('vote-error');
+                    if (voteError) voteError.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error in castVote:', error);
             }
         }
 
         // Session Timeout
         function resetInactivityTimer() {
-            if (inactivityTimer) clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(() => {
-                if (currentVoter) {
-                    alert('Session timed out due to inactivity.');
-                    currentVoter = null;
-                    goToStep('portal');
-                }
-            }, 5 * 60 * 1000); // 5 minutes
+            try {
+                if (inactivityTimer) clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(() => {
+                    if (currentVoter) {
+                        alert('Session timed out due to inactivity.');
+                        currentVoter = null;
+                        goToStep('portal');
+                    }
+                }, 5 * 60 * 1000); // 5 minutes
+            } catch (error) {
+                console.error('Error in resetInactivityTimer:', error);
+            }
         }
 
         // Event listeners for resetting inactivity timer
@@ -346,90 +418,123 @@
 
         // Determine Winner
         function getWinner() {
-            if (votes.length === 0) return "No votes cast yet.";
-            const tally = votes.reduce((acc, vote) => {
-                acc[vote.candidate] = (acc[vote.candidate] || 0) + 1;
-                return acc;
-            }, {});
-            const maxVotes = Math.max(...Object.values(tally));
-            const winners = Object.keys(tally).filter(candidate => tally[candidate] === maxVotes);
-            if (winners.length > 1) {
-                const winnerText = winners.map(w => `<span class="${getCandidateColorClass(w)}">${w}</span>`).join(', ');
-                return `Tie between: ${winnerText} with ${maxVotes} votes each`;
-            }
-            return `Winner: <span class="${getCandidateColorClass(winners[0])}">${winners[0]}</span> with ${maxVotes} votes`;
-        }
-
-        // Admin: Toggle Results
-        function toggleAdmin() {
-            const results = document.getElementById('admin-results');
-            results.classList.toggle('hidden');
-            if (!results.classList.contains('hidden')) {
+            try {
+                if (votes.length === 0) return "No votes cast yet.";
                 const tally = votes.reduce((acc, vote) => {
                     acc[vote.candidate] = (acc[vote.candidate] || 0) + 1;
                     return acc;
                 }, {});
-                const tallyList = document.getElementById('vote-tally');
-                tallyList.innerHTML = Object.entries(tally).map(([candidate, count]) => 
-                    `<li><span class="${getCandidateColorClass(candidate)}">${candidate}</span>: ${count} votes</li>`
-                ).join('');
-                document.getElementById('vote-winner').innerHTML = getWinner();
-                const historyList = document.getElementById('vote-history');
-                historyList.innerHTML = votes.map(vote => 
-                    `<li><span class="${getCandidateColorClass(vote.candidate)}">${vote.candidate}</span> by ${vote.voterId} at ${vote.timestamp}</li>`
-                ).join('');
+                const maxVotes = Math.max(...Object.values(tally));
+                const winners = Object.keys(tally).filter(candidate => tally[candidate] === maxVotes);
+                if (winners.length > 1) {
+                    const winnerText = winners.map(w => `<span class="${getCandidateColorClass(w)}">${w}</span>`).join(', ');
+                    return `Tie between: ${winnerText} with ${maxVotes} votes each`;
+                }
+                return `Winner: <span class="${getCandidateColorClass(winners[0])}">${winners[0]}</span> with ${maxVotes} votes`;
+            } catch (error) {
+                console.error('Error in getWinner:', error);
+                return "Error calculating winner.";
+            }
+        }
 
-                // Update Chart
-                if (voteChart) voteChart.destroy();
-                const ctx = document.getElementById('vote-chart').getContext('2d');
-                voteChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(tally),
-                        datasets: [{
-                            label: 'Votes',
-                            data: Object.values(tally),
-                            backgroundColor: Object.keys(tally).map(candidate => {
-                                switch (candidate) {
-                                    case 'Janasena (JSP)': return '#dc2626';
-                                    case 'YCP': return '#2563eb';
-                                    case 'TDP': return '#ca8a04';
-                                    default: return '#6b7280';
-                                }
-                            }),
-                            borderColor: Object.keys(tally).map(candidate => {
-                                switch (candidate) {
-                                    case 'Janasena (JSP)': return '#b91c1c';
-                                    case 'YCP': return '#1e40af';
-                                    case 'TDP': return '#a16207';
-                                    default: return '#4b5563';
-                                }
-                            }),
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            title: { display: true, text: translations[document.getElementById('language-select').value]['vote-tally'] }
-                        }
+        // Admin: Toggle Results
+        function toggleAdmin() {
+            try {
+                const results = document.getElementById('admin-results');
+                if (!results) {
+                    console.error('Admin results element not found');
+                    return;
+                }
+                results.classList.toggle('hidden');
+                if (!results.classList.contains('hidden')) {
+                    const tally = votes.reduce((acc, vote) => {
+                        acc[vote.candidate] = (acc[vote.candidate] || 0) + 1;
+                        return acc;
+                    }, {});
+                    const tallyList = document.getElementById('vote-tally');
+                    if (tallyList) {
+                        tallyList.innerHTML = Object.entries(tally).map(([candidate, count]) => 
+                            `<li><span class="${getCandidateColorClass(candidate)}">${candidate}</span>: ${count} votes</li>`
+                        ).join('');
                     }
-                });
+                    const voteWinner = document.getElementById('vote-winner');
+                    if (voteWinner) voteWinner.innerHTML = getWinner();
+                    const historyList = document.getElementById('vote-history');
+                    if (historyList) {
+                        historyList.innerHTML = votes.map(vote => 
+                            `<li><span class="${getCandidateColorClass(vote.candidate)}">${vote.candidate}</span> by ${vote.voterId} at ${vote.timestamp}</li>`
+                        ).join('');
+                    }
+
+                    // Update Chart
+                    if (voteChart) voteChart.destroy();
+                    const ctx = document.getElementById('vote-chart').getContext('2d');
+                    if (!ctx) {
+                        console.error('Vote chart canvas not found');
+                        return;
+                    }
+                    voteChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(tally),
+                            datasets: [{
+                                label: 'Votes',
+                                data: Object.values(tally),
+                                backgroundColor: Object.keys(tally).map(candidate => {
+                                    switch (candidate) {
+                                        case 'Janasena (JSP)': return '#dc2626';
+                                        case 'YCP': return '#2563eb';
+                                        case 'TDP': return '#ca8a04';
+                                        default: return '#6b7280';
+                                    }
+                                }),
+                                borderColor: Object.keys(tally).map(candidate => {
+                                    switch (candidate) {
+                                        case 'Janasena (JSP)': return '#b91c1c';
+                                        case 'YCP': return '#1e40af';
+                                        case 'TDP': return '#a16207';
+                                        default: return '#4b5563';
+                                    }
+                                }),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                title: { display: true, text: translations[document.getElementById('language-select').value]['vote-tally'] }
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error in toggleAdmin:', error);
             }
         }
 
         // Admin: Publish Results
         function publishResults() {
-            document.getElementById('publish-message').classList.remove('hidden');
-            setTimeout(() => document.getElementById('publish-message').classList.add('hidden'), 2000);
+            try {
+                const publishMessage = document.getElementById('publish-message');
+                if (publishMessage) {
+                    publishMessage.classList.remove('hidden');
+                    setTimeout(() => publishMessage.classList.add('hidden'), 2000);
+                }
+            } catch (error) {
+                console.error('Error in publishResults:', error);
+            }
         }
 
         // Initialize
-        goToStep('portal');
-        changeLanguage();
+        try {
+            goToStep('portal');
+            changeLanguage();
+        } catch (error) {
+            console.error('Error during initialization:', error);
+        }
     </script>
 </body>
 </html>
